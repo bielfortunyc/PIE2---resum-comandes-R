@@ -3,6 +3,9 @@ title: "RESUM PIE2 - R commands"
 author: "PauM PauF"
 date: "2023-12-27"
 output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -11,25 +14,18 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Comandes i exemples per llegir dades
 
-
-rep(c("16 mesos", "24 mesos"), each=3) -->  repetir 3 vegades cada element
-rep(c("0", "0.45", "0.75"), times=2)   -->  repetir 2 vegades el vector sencer
+```{r}
+rep(c("16 mesos", "24 mesos"), each=3) # repetir 3 vegades cada element 
+rep(c("0", "0.45", "0.75"), times=2) # repetir 2 vegades el vector sencer
 
 dades = matrix(c(2500, 50, 10,
-                2700, 70, 17,
-                2900, 100, 30,
-                3100, 60, 21,             (dades de l'exercici )
-                3300, 40, 18,
-                3500, 85, 43,
-                3700, 90, 54,
-                3900, 50, 33,
-                4100, 80, 60,
-                4300, 65, 51), ncol = 3, byrow = True)
-                                      
-                                      --> ncol per indical el nombre de columnes
-                                      --> byrow = True  (False per dafault) per omplir
-                                                        la matriu per files/columnes
-                                                        
+                 2700, 70, 17,
+                 2900, 100, 30, 
+                 3100, 60, 21), # resum de les dades 
+               ncol = 3, # ncol per indical el nombre de columnes
+               byrow = True) # byrow = True  (False per dafault) per omplir la matriu per files                                   # /columnes
+
+```
 
 ```{r}
 temps = factor(rep(c("16 mesos", "24 mesos"), each=3))
@@ -38,9 +34,10 @@ dosi = factor(rep(c("0", "0.45", "0.75"), times=2))
 dosi
 ```
 
-Per exemple, a l'exercici 6 de glm, les dades les podem llegir de la següent manera:
+Per exemple, a l'exercici 6 de glm, les dades les podem llegir de la
+següent manera:
 
-
+```{r}
 ntumors = c(1, 3, 7, 20, 98, 118)
 nratolins = c(205, 304, 193, 762, 888, 587)
 cbind(ntumors, nratolins)
@@ -51,101 +48,111 @@ dades = data.frame(periode = temps,
                    dosi = dosi,
                    ntumors = ntumors,
                    nratolins = nratolins)
-
-
-
+```
 
 ## Plots
 
-llibreries:
-  library(ggplot2)
-  library(moderndive)
-  
+llibreries: library(ggplot2) library(moderndive)
+
+```{r}
+library(ggplot2)
+library(moderndive)
+```
 
 #### Sense suposar interacció
+
+```{r}
 ggplot(iris) +
   aes(x = Sepal.Width, y = Sepal.Length, color = Species) +
   geom_parallel_slopes(se=FALSE) +
   geom_point()
+```
 
 #### Suposant interacció
+
+```{r}
 ggplot(iris) +
   aes(x = Sepal.Width, y = Sepal.Length, color = Species) +
   geom_smooth(se = FALSE, method = "lm") +
   geom_point()
+```
 
 #### Boxplot segons tipus
-ggplot(iris, aes(Species, Sepal.Length)) + 
+
+```{r}
+ggplot(iris, aes(Species, Sepal.Length)) +
   geom_boxplot(aes(fill = Species)) +
   theme_minimal() +
   theme(legend.position = "top")
-  
-  
+```
+
 #### Separar plots segons alguna variable (en comptes de fer-ho per colors, per exemple):
-ggplot(iris) +
-  aes(x = Sepal.Width, y = Sepal.Length) +
+
+```{r}
+ggplot(iris) + 
+  aes(x = Sepal.Width, y = Sepal.Length) + 
   geom_point() + 
   facet_wrap(~Species)
+```
 
 #### Veure algunes mostres en concret a un plot:
+
 (si tenim les mostres que volen per índexs):
 
-indexs = c(69, 106, 107, 119, 123, 131, 132, 136)
-mostres_cook <- irisdat4[irisdat4$X %in% indexs, ]
-ggplot(iris) +
-  ....
-  + gplot + geom_text(data = mostres_cook, aes(label = X), vjust = -1)
+```{r}
+indexs = c(69, 106, 107, 119, 123, 131, 132, 136) 
+mostres_cook <- irisdat4[irisdat4$X %in% indexs, ] 
+ggplot(iris) + …. + gplot + geom_text(data = mostres_cook, aes(label = X), vjust = -1)
+
+```
 
 #### ggpairs:
-library(GGally)
-ggpairs(irisdat4)
 
+library(GGally) ggpairs(irisdat4)
 
 ## Models i funcions randoms
--- lm
----- glm
------ logit vs provit
------ kruskal test
------ aov
------ anova()
--------- vif
 
-
+-- lm ---- glm ----- logit vs provit ----- kruskal test ----- aov -----
+anova() -------- vif
 
 ## Interpretació summary
-
-
 
 ```{r}
 model2 = lm(Sepal.Length ~ Sepal.Width + Species, data=irisdat4)
 summary(model2)
 ```
-- Estimate: valor obtingut de l'estimació dels coeficients del model
 
-- t value: valor de l'estadístic per a la prova d'hipòtesi H0: coeff = 0
+-   Estimate: valor obtingut de l'estimació dels coeficients del model
 
-- Pr(>|t|): p-valor de la prova d'hipòtesi H0: coeff = 0
+-   t value: valor de l'estadístic per a la prova d'hipòtesi H0: coeff =
+    0
 
-- Residual standard error: desviació estàndard dels resiuds. Quan ens demanen l'estimació
-      de la VARIÀNCIA del model (o variància residual), hem de calcular el quadrat d'aquest valor.
-    
-- Multiple R-squared: part de la variabilitat de la variable resposta és explicada pel model.
-      És una manera de calcular la bondat d'ajust del model a les dades.
+-   Pr(\>\|t\|): p-valor de la prova d'hipòtesi H0: coeff = 0
 
-- Adj. R-squared: bondat d'ajust "corregida"; penalitza tenir massa paràmetres. Per comparar dos
-    models linials aniguats l'un a l'altre (que un tingui els mateixos paràmetres que l'altre
-    i algun més), comparem els R-squared adj., i ens quedem amb el model que tingui un R-sqared adj. 
-    més gran. 
+-   Residual standard error: desviació estàndard dels resiuds. Quan ens
+    demanen l'estimació de la VARIÀNCIA del model (o variància
+    residual), hem de calcular el quadrat d'aquest valor.
 
-- F-statistic..,  p-value.. : estadístic i p-valor de la prova d'hipòtesi que compara el nostre model
-    amb el model nul (H0: beta1 = beta2 = ... = 0). Ens interessa tenir un F-statistic GRAN 
-    (o bé un p-valor petit).
+-   Multiple R-squared: part de la variabilitat de la variable resposta
+    és explicada pel model. És una manera de calcular la bondat d'ajust
+    del model a les dades.
 
-- Pel que fa als residus, ens interessa veure que estan centrats al 0 (que el residu màxim i 
-    el mínim siguin relativament simètrics, i el mateix pels quantils).
+-   Adj. R-squared: bondat d'ajust "corregida"; penalitza tenir massa
+    paràmetres. Per comparar dos models linials aniguats l'un a l'altre
+    (que un tingui els mateixos paràmetres que l'altre i algun més),
+    comparem els R-squared adj., i ens quedem amb el model que tingui un
+    R-sqared adj. més gran.
+
+-   F-statistic.., p-value.. : estadístic i p-valor de la prova
+    d'hipòtesi que compara el nostre model amb el model nul (H0: beta1 =
+    beta2 = ... = 0). Ens interessa tenir un F-statistic GRAN (o bé un
+    p-valor petit).
+
+-   Pel que fa als residus, ens interessa veure que estan centrats al 0
+    (que el residu màxim i el mínim siguin relativament simètrics, i el
+    mateix pels quantils).
 
 ## Plots (residus, leverage, cook) i com haurien de ser
-
 
 #### Resudial vs Fitted
 
@@ -153,12 +160,20 @@ summary(model2)
 plot(model2, which=1)
 ```
 
-Aquí veiem els valors dels resiuds en funció dels valors ajustats (valor de la variable resposta quan s'evaluen amb les explicatives). Aquí hauríem d'observar:
+Aquí veiem els valors dels resiuds en funció dels valors ajustats (valor
+de la variable resposta quan s'evaluen amb les explicatives). Aquí
+hauríem d'observar:
 
-- Els valors dels residus no hauríen de dependre dels valors ajustats. És a dir, no hauríem de veure cap tendència de creixement/decreixement a la gràfica -- la línia vermella hauria de ser plana.
+-   Els valors dels residus no hauríen de dependre dels valors ajustats.
+    És a dir, no hauríem de veure cap tendència de
+    creixement/decreixement a la gràfica -- la línia vermella hauria de
+    ser plana.
 
-- La variabilitat dels resiuds hauria de ser sempre igual (hipòtesi d'homoscedasticitat) (en aquest cas per exemple, la variança augmenta una mica cap a valors més grans dels fitted values, cosa que no hauria de passar). Això es veu similarment a la gràfica de Scale-Location.
-
+-   La variabilitat dels resiuds hauria de ser sempre igual (hipòtesi
+    d'homoscedasticitat) (en aquest cas per exemple, la variança
+    augmenta una mica cap a valors més grans dels fitted values, cosa
+    que no hauria de passar). Això es veu similarment a la gràfica de
+    Scale-Location.
 
 #### Normal Q-Q
 
@@ -166,9 +181,10 @@ Aquí veiem els valors dels resiuds en funció dels valors ajustats (valor de la
 plot(model2, which=2)
 ```
 
-Aquí ens compara els residus (estandaritzats) respecte la distribució Normal.
-Per a aque es compleixi l'hipòtesi de normalitat dels residus, hauriem de veure que els residus tendeixen a la distribució normal. En aquest cas, no ho compleixen gaire.
-
+Aquí ens compara els residus (estandaritzats) respecte la distribució
+Normal. Per a aque es compleixi l'hipòtesi de normalitat dels residus,
+hauriem de veure que els residus tendeixen a la distribució normal. En
+aquest cas, no ho compleixen gaire.
 
 #### Scale-Location
 
@@ -176,20 +192,27 @@ Per a aque es compleixi l'hipòtesi de normalitat dels residus, hauriem de veure
 plot(model2, which=3)
 ```
 
-Aquí podem veure també si els residus estan equitativament repartits en funció dels fitted values:
+Aquí podem veure també si els residus estan equitativament repartits en
+funció dels fitted values:
 
-  - NO hauríem de veure cap tendència de creixement o decreixement, ja que indicaria que la variància dels           resiuds varia en funció dels fitted values
-
+-   NO hauríem de veure cap tendència de creixement o decreixement, ja
+    que indicaria que la variància dels resiuds varia en funció dels
+    fitted values
 
 #### Residus estandaritzats
+
 ```{r}
 plot(abs(rstandard(model2)))
 abline(a=2, b=0,lty=2)
 ```
+
 (també es poden veure sense el valor absolut): plot(rstudent(model2))
-                                               abline(h=c(-2,0,2),lty=2)
-                                               
-Aquí hauríem de veure que es compleix l'hipòtesi de normalitat; hauríem de tenir el 95% dels residus dins de l'intèrval [-2, 2] (o [0, 2] si ens mirem el valor absolut dels residus), i un 5% dels residus fora d'aquest intèrval.
+abline(h=c(-2,0,2),lty=2)
+
+Aquí hauríem de veure que es compleix l'hipòtesi de normalitat; hauríem
+de tenir el 95% dels residus dins de l'intèrval [-2, 2] (o [0, 2] si ens
+mirem el valor absolut dels residus), i un 5% dels residus fora d'aquest
+intèrval.
 
 #### Residuals vs Leverage
 
@@ -197,41 +220,52 @@ Aquí hauríem de veure que es compleix l'hipòtesi de normalitat; hauríem de t
 plot(model2, which=5)
 ```
 
-Podem veure si hi ha mostres influents --> si hi ha mostres que tenen un leverage i una cook's distance gran, podrien ser influents, per tant hauriem de veure els residus acumulats cap al centre, i després sempre en podem tenir que tinguin un leverage gran però que el residu sigui petit, o que el residu sigui més gran però que tingui leverage petit.
-Tot i així no és la millor gràfica per veure els valors del leverage i de la cook's distance de les mostres. 
-
-
+Podem veure si hi ha mostres influents --\> si hi ha mostres que tenen
+un leverage i una cook's distance gran, podrien ser influents, per tant
+hauriem de veure els residus acumulats cap al centre, i després sempre
+en podem tenir que tinguin un leverage gran però que el residu sigui
+petit, o que el residu sigui més gran però que tingui leverage petit.
+Tot i així no és la millor gràfica per veure els valors del leverage i
+de la cook's distance de les mostres.
 
 #### Cook's distance
+
 ```{r}
 n = nrow(irisdat4)  #nombre de mostres amb que hem ajustat el model
 plot(cooks.distance(model2))
 abline(h=c(0,4/n),lty=2)  
 ```
 
-OJO, que aquí estem assumint que fem servir la condició 4/n com a cook's distance gran. Sempre es pot canviar la posició de la linia (abline(...)) per si hem de fer servir una altra confició. 
-Aquí simplement veiem si hi ha mostres que tenen una cook's distance més gran que 4/n, i com a tal si són influents o no.
+OJO, que aquí estem assumint que fem servir la condició 4/n com a cook's
+distance gran. Sempre es pot canviar la posició de la linia
+(abline(...)) per si hem de fer servir una altra confició. Aquí
+simplement veiem si hi ha mostres que tenen una cook's distance més gran
+que 4/n, i com a tal si són influents o no.
 
-Per veure els índexs de les mostres que tenen una cook's distance més gran que 4/n, podem fer-ho així:
+Per veure els índexs de les mostres que tenen una cook's distance més
+gran que 4/n, podem fer-ho així:
+
 ```{r}
 cook = cooks.distance(model2) > 4/n
 which(cook)
 ```
 
 Per treure-les del data set:
+
 ```{r}
 irisdat4.1 <- irisdat4[- c(69, 106, 107, 119, 123, 131, 132, 136),]
 ```
 
-
-
 #### Leverage
+
 ```{r}
 plot(hatvalues(model2), type = 'h')
 ```
+
 (el leverage d'una mostra és el mateix valor que el hatvalue)
 
 Per veure quines mostres tenen un leverage gran:
+
 ```{r}
 p = ncol(model.matrix(model2))
 n = nrow(irisdat4)
@@ -240,15 +274,6 @@ indexs = which(hatvalues(model2)>cond_lev)
 mostres = irisdat4[indexs,]
 ```
 
+## Anova
 
-
-
-## Tukey, emmans, 
-
-
-
-
-
-
-
-
+## Tukey, emmans,
