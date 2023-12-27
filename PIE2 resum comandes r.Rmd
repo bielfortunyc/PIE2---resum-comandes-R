@@ -93,6 +93,9 @@ ggplot(iris) +
 ## Models 
 ----- logit vs provit
 ----- kruskal test
+----- aov
+----- anova()
+
 
 
 
@@ -104,20 +107,29 @@ ggplot(iris) +
 model2 = lm(Sepal.Length ~ Sepal.Width + Species, data=irisdat4)
 summary(model2)
 ```
-
-
-
+- Estimate: valor obtingut de l'estimació dels coeficients del model
 
 - t value: valor de l'estadístic per a la prova d'hipòtesi H0: coeff = 0
 
+- Pr(>|t|): p-valor de la prova d'hipòtesi H0: coeff = 0
+
 - Residual standard error: desviació estàndard dels resiuds. Quan ens demanen l'estimació
-    de la VARIÀNCIA del model (o variància residual), hem de calcular el quadrat d'aquest valor.
+      de la VARIÀNCIA del model (o variància residual), hem de calcular el quadrat d'aquest valor.
     
-- Multiple R-squared: part de la variabilitat de la variable resposta és explicada pel model
+- Multiple R-squared: part de la variabilitat de la variable resposta és explicada pel model.
+      És una manera de calcular la bondat d'ajust del model a les dades.
 
+- Adj. R-squared: bondat d'ajust "corregida"; penalitza tenir massa paràmetres. Per comparar dos
+    models linials aniguats l'un a l'altre (que un tingui els mateixos paràmetres que l'altre
+    i algun més), comparem els R-squared adj., i ens quedem amb el model que tingui un R-sqared adj. 
+    més gran. 
 
+- F-statistic..,  p-value.. : estadístic i p-valor de la prova d'hipòtesi que compara el nostre model
+    amb el model nul (H0: beta1 = beta2 = ... = 0). Ens interessa tenir un F-statistic GRAN 
+    (o bé un p-valor petit).
 
-
+- Pel que fa als residus, ens interessa veure que estan centrats al 0 (que el residu màxim i 
+    el mínim siguin relativament simètrics, i el mateix pels quantils).
 
 ## Plots (residus, leverage, cook) i com haurien de ser
 
