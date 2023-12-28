@@ -80,10 +80,14 @@ ggplot(iris) +
 #### Boxplot segons tipus
 
 ```{r}
+# boxplot bonic
 ggplot(iris, aes(Species, Sepal.Length)) +
   geom_boxplot(aes(fill = Species)) +
   theme_minimal() +
   theme(legend.position = "top")
+
+# boxplot cutre pero que en escència és el mateix.
+boxplot(Sepal.Length ~ Species, data=iris)
 ```
 
 #### Separar plots segons alguna variable (en comptes de fer-ho per colors, per exemple):
@@ -276,4 +280,100 @@ mostres = irisdat4[indexs,]
 
 ## Anova
 
-## Tukey, emmans,
+Part explicada amb l'exemple dels donuts.
+
+Llibreries que utilitzarem: emmeans, multcomp, multcompView:
+
+```{r}
+library(emmeans)
+library(multcomp)
+library(multcompView)
+```
+
+Carreguem les dades:
+
+**IMPORTANT PASSAR A FACTOR**
+
+```{r}
+dough = read.csv("http://vicpena.github.io/pie2/dough.csv")
+
+dough$type = factor(dough$type)
+
+# model lineal
+mod_lm = lm(fat ~ type, data = dough)
+```
+
+#### AOV
+
+La comanda **aov** ens crea un model que ajusta una relació linear.
+Aquest model serà l'objecte que farem servir per fer les comparacions
+entre grups. A diferència d'un ajust d'un model linear "normal", aquest
+objecte conté la taula anova.
+
+```{r}
+mod = aov(fat ~ type, data  = dough)
+# taula anova
+summary(mod)
+
+# estimacio coeficients (els mateixos que rebrem si fem summary d'un lm normal)
+coef(mod)
+```
+
+#### Emmeans
+
+Aquesta comanda la utilitzarem perquè ens creï els IC de cada grup.
+**IMPORTANT:** Se li ha de passar el model creat amb la comanda **aov**
+(taula **anova**).
+
+```{r}
+comp = emmeans(mod, ~ type, level=0.95)
+comp
+```
+
+A ull podem veure que hi ha diferècies entre el grup dos i quatre, i que
+l'u i el tres son molt similars. Les mateixes observacions es poden fer
+amb el boxplot.
+
+#### Tukey
+
+Per fer les múltiples comparacions del mètode tukey utilitzarem la
+comanda **pairs**. Ens retorna totes les comparacions dos a dos amb
+l'ordre que seguiria l'algorisme tukey.
+
+Com més petit sigui el **p-valor**, mes diferent son els dos grups.
+
+```{r}
+pairs(comp, level = 0.95)
+# cld(comp, level = 0.95)
+```
+
+La comanda cld ens comprimirà el resultat de pairs perquè sigui més
+fàcil interpretar-lo.
+
+Ens agruparà els grups que siguin significativament iguals.
+
+```{r}
+cld(comp, level = 0.95)
+```
+
+#### Kruskal 
+
+**(no se com ens ho poden preguntar pero el victor ho va posar a una
+classe)**
+
+La prova de Kruskal la utilitzarem quan no es compleixen les suposicions
+de normalitat i homogeneïtat de les variàncies requerides per fer
+l'ANOVA.
+
+Test d'hipotesi:
+
+1.  **Hipòtesi nul·la (H0):** Les mitjanes de tots els grups són iguals.
+
+2.  **Hipòtesi alternativa (H1):** Almenys un grup té una mediana
+    diferent respecte als altres.
+
+```{r}
+kruskal.test(fat ~ type, data = dough)
+```
+
+Si $p < 0.05$ rebutgem la nul·la.
