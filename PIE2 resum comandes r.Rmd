@@ -377,3 +377,208 @@ kruskal.test(fat ~ type, data = dough)
 ```
 
 Si $p < 0.05$ rebutgem la nul·la.
+
+
+
+### GLM
+
+Per veure un exemple, utilitzem l'exercici de la insecticida
+```{r}
+dd = read.csv2("http://vicpena.github.io/pie2/insecticida.csv")
+cbind(dd$MORTS,dd$T-dd$MORTS)   
+# aquestes dades estan en format taula
+
+# a vegades, les dades es presenten d'una altra manera:
+# cada fila representa un individu diferent
+# PROBIT MODEL #
+        
+m1 = glm(cbind(MORTS,T-MORTS)~log(DOSI),
+         family=binomial(link="probit"),data=dd)
+summary(m1)
+
+```
+cbind(dd$MORTS,dd$T-dd$MORTS)  genera una taula on apareix la quantitat de morts i no morts per dosi. 
+En aquest cas el model es crea utilitzant la taula anterior com a variable resposta i el log de la DOSI com a explicativa, a més com es tracta de dades binàries s'utilitza la família binomial i s'ha usat el link probit per transformar la probabilitat p en un valor continu que pot estendre's des de menys infinit a infinit..  
+
+Volem veure com de bo és el model, si el model és bo, la suma dels quadrats dels residus de pearson dividit per n-p hauria de ser proper a 1. 
+```{r}
+# n: mida de les mostres
+# p = nombre de betas
+n = 10
+p = 2
+pear = resid(m1, type = "pearson")
+sum(pear^2)/(n-p)
+```
+
+Si el model és bo, la suma dels quadrats dels residus de pearson hauria d'aproximar-se a una chisq amb n-p graus de llibertat.
+```{r}
+# H0: model correcte
+# H1: model no correcte
+# rebutgem per valors de residus grans 
+qchisq(0.95, n-p)
+sum(pear^2)
+# Conclusió: no rebutgem H0.
+```
+
+En el nostre cas de dades binàries volem predir la probabilitat de morir segons la dosi. Això ho farem de la següent manera.
+```{r}
+pred = predict(m1,type="response")
+cbind(dd, pred)
+plot(log(dd$DOSI), dd$MORTS/dd$T)
+lines(log(dd$DOSI), pred)
+```
+Podem veure en el plot com de bones són les nostres prediccions comparant-les amb les dades reals.
+
+
+
+
+Creem ara un model però amb el link logit
+```{r}
+
+m2 = glm(cbind(MORTS,T-MORTS)~log(DOSI),
+         family=binomial(link="logit"),data=dd)
+summary(m2)
+```
+
+Pel model m2 podem fer el mateix que hem fet amb el model m1(plots, prediccions, comparar residus pearson...) per veure si és bo, però podem decidir quin és millor comparant els AIC, que és una mesura utilitzada en estadística per a la selecció de models que penalitza la complexitat del model (nombre de paràmetres) i premia l'ajust del model a les dades..
+```{r}
+AIC(m1) # probit
+AIC(m2) # logistic
+```
+
+Veiem que el model logit és lleugerament millor ja que és més petit.
+
+
+
+Per veure la predicció d'algun grup concret de les dades usarem l'exemple de l'alcohol.
+
+```{r}
+edat = c("25-34", "25-34",
+         "35-44", "35-44",
+         "45-54", "45-54",
+         "55-64", "55-64",
+         "65-74", "65-74",
+         "75+", "75+")
+
+consum = rep(c("alta", "baixa"), 6)
+
+si = c(1, 0, 4, 5, 25, 21, 42,
+       34, 19, 36, 5, 8)  
+no = c(9, 106, 26, 164, 29, 138,
+       27,  139, 18, 88,
+       0, 31)
+
+dades = data.frame(edat, consum, si, no)
+dades
+
+mod_logistic = glm(cbind(si, no) ~ edat + consum, 
+                   family = binomial,
+data = dades)
+
+
+
+# Quina és la probabilitat predita
+# per algú que no begui alcohol i tingui
+# una edat entre 55 i 64 anys
+newdata = data.frame(edat = "55-64", consum = "baixa")
+predict(mod_logistic, newdata = newdata,
+        type = "response")
+```
+Simplement creem un nou data.frame seleccionant les dades que ens interessen i fem pred del model amb les noves dades.
+
+
+Veiem un altre exemple, el dels pingüins.
+```{r}
+library(palmerpenguins)
+data(penguins)
+
+head(penguins)
+
+# excloem observacions mancants
+penguins = na.omit(penguins)
+
+# objectiu: predir sexe 
+# dels pingüins donades les altres variables
+
+
+# ajustem un model logístic amb totes les variables
+mod_full = glm(sex ~ . , data = penguins,
+               family = binomial)
+summary(mod_full)
+#si no especifiquem el link és logit.
+#Les variables amb coeficient positiu indiquen que aquestes fan que augmenti l'observació a ser predita com a mascle.
+```
+En aquest cas tenim diversos paràmetre poc significatius, llavors podem fer el següent:
+```{r}
+# fem backward selection amb AIC per a seleccionar
+# un subconjunt de variables
+mod_bwd = step(mod_full)
+summary(mod_bwd)
+```
+Així ens quedem amb un subconjunt de variables les quals hem anat traient poc a poc fins que l'AIC augmenta.
+Podem ara graficar les nostres prediccions.
+```{r}
+penguins$preds = predict(mod_bwd, type = "response")
+ggplot(penguins) +
+    aes(x = preds, y = sex) +
+        geom_boxplot()
+```
+Veiem que les nostres prediccions de mascle es troben bastant acumulades a la banda contraria de les prediccions de femella, podem convertir les previsions, que són probabilitats, en "home" o "dona".
+```{r}
+# a través de la regla
+# mascle si probabilitat prevista > 0.5
+# femella altrament
+penguins$preds_sex = ifelse(penguins$preds > 0.5,
+                            "male", "female")
+# fem una taula de preds_sex (predicció) contra sex (dades)
+tab = table(penguins$preds_sex, penguins$sex)
+tab
+```
+Veiem que les prediccions s'han equivocat en les 27 observacions de la diagonal, això representa una precisió del
+```{r}
+sum(diag(tab))/sum(tab)
+```
+
+Exemple és el dels ratolins per comparar model additiu i interactiu.
+```{r}
+ntumors = c(1, 3, 7,
+            20, 98, 118)
+nratolins = c(205, 304, 193,
+              762, 888, 587)
+cbind(ntumors, nratolins)
+
+periode = factor(rep(c("16 mesos", "24 mesos"), 
+                  each = 3))
+
+dosi = factor(rep(c("0", "0.45", "0.75"), 
+                  times = 2))
+
+
+dades = data.frame(periode = periode,
+                   dosi = dosi,
+                   ntumors = ntumors,
+                   nratolins = nratolins)
+
+
+
+```
+
+Volem saber si la interacció és significativa, podem fer una prova per raó de versemblances.
+
+```{r}
+mod_ratolins = glm(cbind(ntumors, nratolins-ntumors) ~ dosi + periode,
+                   data = dades,
+                   family = binomial)
+model.matrix(mod_ratolins)
+
+# model amb interacció
+mod_inter = glm(cbind(ntumors, nratolins-ntumors) ~ dosi*periode ,
+                data = dades,
+                family = binomial)
+anova(mod_ratolins, mod_inter, test = "LRT")
+
+#Amb p-valor tant gran concloem que la interacció no és significativa.
+
+```
+
+
