@@ -49,6 +49,8 @@ dades = data.frame(periode = temps,
                    ntumors = ntumors,
                    nratolins = nratolins)
 ```
+head(dades) ens mostra les dades que acabem de llegir. Sol donar-ne les primeres línies.
+
 
 ## Plots
 
