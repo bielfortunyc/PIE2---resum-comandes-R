@@ -5,7 +5,7 @@ date: "2023-12-27"
 output: html_document
 editor_options: 
   markdown: 
-    wrap: 72
+    wrap: 72 
 ---
 
 ```{r setup, include=FALSE}
@@ -49,6 +49,8 @@ dades = data.frame(periode = temps,
                    ntumors = ntumors,
                    nratolins = nratolins)
 ```
+
+head(dades) ens mostra les dades que acabem de llegir. Sol donar-ne les primeres línies.
 
 ## Plots
 
