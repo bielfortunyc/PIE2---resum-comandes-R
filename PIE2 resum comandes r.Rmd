@@ -119,6 +119,10 @@ library(GGally) ggpairs(irisdat4)
 -- lm ---- glm ----- logit vs provit ----- kruskal test ----- aov -----
 anova() -------- vif
 
+Funció anova(model1, model2)
+Ens fa una comparació amb test d'hipòtesi: H0: model1=model2, H1:model1!=model2.
+Normalment el model2 està aniuat al model1, de manera que aquest té més paràmetres. El que volem veure és si el model2 és significativament diferent del model 1, podem mirar AIC i fer el test anova. Ens dona un p-valor sobre l'anterior test d'hipòtesi. Si surt significatiu vol dir que val la pena quedar-se amb el model2.
+
 ## Interpretació summary
 
 ```{r}
@@ -155,6 +159,13 @@ summary(model2)
 -   Pel que fa als residus, ens interessa veure que estan centrats al 0
     (que el residu màxim i el mínim siguin relativament simètrics, i el
     mateix pels quantils).
+
+Qualsevol d'aquests valors del summary es poden trobar també com a elements del model: model$element.
+Exemple: summary(model)$r.squared
+
+Fent confint(mod) obtenim els intervals de confiança de cada coeficient del model mod.
+També es poden obtenir fent predict(model, newdata=, intervals=). Es pot posar confidence o prediction.
+
 
 ## Plots (residus, leverage, cook) i com haurien de ser
 
@@ -231,6 +242,9 @@ en podem tenir que tinguin un leverage gran però que el residu sigui
 petit, o que el residu sigui més gran però que tingui leverage petit.
 Tot i així no és la millor gràfica per veure els valors del leverage i
 de la cook's distance de les mostres.
+
+Per trobar els residus mínims i màxims es pot directament amb min(resid(model)) i
+max(resid(model)).
 
 #### Cook's distance
 
