@@ -99,6 +99,11 @@ ggplot(iris) +
   facet_wrap(~Species)
 ```
 
+#### Per fer un gràfic ràpidament assumint linealitat podem fer 
+```{r}
+emmip(model, A~B)
+```
+
 #### Veure algunes mostres en concret a un plot:
 
 (si tenim les mostres que volen per índexs):
