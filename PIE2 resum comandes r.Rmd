@@ -28,6 +28,8 @@ dades = matrix(c(2500, 50, 10,
 ```
 
 ```{r}
+Important passar a factor les variables categòriques!
+
 temps = factor(rep(c("16 mesos", "24 mesos"), each=3))
 temps
 dosi = factor(rep(c("0", "0.45", "0.75"), times=2))
@@ -67,6 +69,7 @@ ggplot(iris) +
   geom_parallel_slopes(se=FALSE) +
   geom_point()
 ```
+
 
 #### Suposant interacció
 
@@ -118,6 +121,10 @@ library(GGally) ggpairs(irisdat4)
 
 -- lm ---- glm ----- logit vs provit ----- kruskal test ----- aov -----
 anova() -------- vif
+
+Funció anova.
+Es fa anova(model1, model2) per comparar dos models. Model2 està aniuat a Model1 i volem saber si són diferents. H0: ens quedem amb model1, H1: és millor el model2. 
+Fent anova(model1, model2) s'executa aquest test d'hipòtesis i ens en dona el p-valor: si és significatiu ens quedem amb el model2.
 
 ## Interpretació summary
 
@@ -378,6 +385,13 @@ kruskal.test(fat ~ type, data = dough)
 
 Si $p < 0.05$ rebutgem la nul·la.
 
+### PREDICCIONS
+
+Quan ens donen unes noves dades o volem fer algun tipus de predicció, emprem la funció predict.
+predict(model, newdata=, interval=)
+Interval pot ser "confidence" o "prediction" pel tipus d'intervals.
+Per fer prediccions dels intervals de confiança per l'estimació dels paràmetres d'un model podem emprar:
+confint(model)
 
 
 ### GLM
