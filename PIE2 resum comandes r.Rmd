@@ -3,7 +3,7 @@ title: "RESUM PIE2 - R commands"
 author: "PauM PauF"
 date: "2023-12-27"
 output: html_document
-editor_options: 
+editor_options:  
   markdown: 
     wrap: 72 
 ---
